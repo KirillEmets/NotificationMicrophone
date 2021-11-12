@@ -6,8 +6,12 @@
         <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/drawable-anydpi/mic.xml" value="0.3828125" />
         <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/drawable-v24/baseline_close_24.xml" value="0.3828125" />
         <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/drawable-v24/baseline_stop_24.xml" value="0.3828125" />
+        <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/drawable/ic_round_close_24.xml" value="0.3769230769230769" />
         <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/drawable/ic_round_pause_24.xml" value="0.3828125" />
         <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/drawable/ic_round_play_arrow_24.xml" value="0.3828125" />
+        <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/drawable/ic_round_stop_24.xml" value="0.3769230769230769" />
+        <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/drawable/round_ripple.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/drawable/roundcorners.xml" value="0.3769230769230769" />
         <entry key="..\:/Users/HP16/NotificationMicrophone/app/src/main/res/layout/notification.xml" value="0.35688405797101447" />
       </map>
     </option>

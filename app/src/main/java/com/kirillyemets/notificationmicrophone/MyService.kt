@@ -28,13 +28,15 @@ class MyService : Service() {
         layout.setTextViewText(R.id.tv_timer, "Time: $seconds")
 
         layout.setOnClickPendingIntent(R.id.btn_start_pause, intentWithAction(ACTION_START_PAUSE))
-        layout.setOnClickPendingIntent(R.id.btn_stop, intentWithAction(ACTION_KILL))
+        layout.setOnClickPendingIntent(R.id.btn_stop, intentWithAction(ACTION_STOP))
+        layout.setOnClickPendingIntent(R.id.btn_kill, intentWithAction(ACTION_KILL))
         layout
     }
 
     private val notification by lazy {
         val openActivityIntent = Intent(this, MainActivity::class.java).let { notificationIntent ->
-            PendingIntent.getActivity(this, 0, notificationIntent, 0)
+            notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
         }
 
         val channelId = createNotificationChannel(
@@ -54,7 +56,7 @@ class MyService : Service() {
 
     private val timerJob = Job()
     private var running = false
-    private var seconds: Float = 0f
+    private var seconds: Int = 0
         set(value) {
             field = value
             changeTimerTextAndUpdate()
@@ -65,7 +67,7 @@ class MyService : Service() {
         updateNotification()
     }
 
-    private fun changeButtonStartPauseTextAndUpdate() {
+    private fun changeButtonStartPauseIcon() {
         remoteViews.setImageViewResource(
             R.id.btn_start_pause,
             if (running) R.drawable.ic_round_pause_24 else R.drawable.ic_round_play_arrow_24
@@ -80,36 +82,47 @@ class MyService : Service() {
         )
     }
 
+    private fun stopTimer() {
+        running = false
+        timerJob.cancelChildren()
+    }
+
     private fun startTimer() {
-        if (running) {
-            running = false
-            timerJob.cancelChildren()
-        } else {
-            running = true
-            MainScope().launch(timerJob) {
-                while (true) {
-                    delay(1000)
-                    seconds += 1
-                }
+        running = true
+        MainScope().launch(timerJob) {
+            while (true) {
+                delay(1000)
+                seconds += 1
             }
         }
-
-        changeButtonStartPauseTextAndUpdate()
     }
 
-    private fun stopTimer() {
+    private fun actionStartPause() {
+        if (running) {
+            stopTimer()
+        } else {
+            startTimer()
+        }
 
+        changeButtonStartPauseIcon()
+        updateNotification()
     }
 
-    private fun killService() {
+    private fun actionStop() {
+        stopTimer()
+        changeButtonStartPauseIcon()
+        seconds = 0
+    }
+
+    private fun actionKill() {
         timerJob.cancel()
         stopSelf()
     }
 
     private val actionHandlers = mapOf(
-        ACTION_START_PAUSE to ::startTimer,
-        ACTION_STOP to ::stopTimer,
-        ACTION_KILL to ::killService,
+        ACTION_START_PAUSE to ::actionStartPause,
+        ACTION_STOP to ::actionStop,
+        ACTION_KILL to ::actionKill,
     )
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -118,6 +131,7 @@ class MyService : Service() {
             return super.onStartCommand(intent, flags, startId)
         }
 
+        startTimer()
         startForeground(MAIN_NOTIFICATION_ID, notification.build())
         return super.onStartCommand(intent, flags, startId)
     }
