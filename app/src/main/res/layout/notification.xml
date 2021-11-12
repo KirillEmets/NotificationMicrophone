@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end">
+
+        <ImageButton
+            android:id="@+id/btn_start_pause"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/kek"
+            android:padding="8dp"
+            android:src="@drawable/ic_round_play_arrow_24"
+            android:tint="?android:attr/textColorSecondary"
+            tools:ignore="UseAppTint" />
+
+        <ImageButton
+            android:id="@+id/btn_stop"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/kek"
+            android:padding="8dp"
+            android:src="@drawable/baseline_stop_24"
+            android:tint="?android:attr/textColorSecondary"
+            tools:ignore="UseAppTint" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_timer"
+        style="@style/TextAppearance.Compat.Notification.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:padding="16dp"
+
+        tools:text="Time: 32" />
+</FrameLayout>

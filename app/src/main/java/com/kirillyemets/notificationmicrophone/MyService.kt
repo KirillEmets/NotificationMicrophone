@@ -4,13 +4,14 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.widget.RemoteViews
 import kotlinx.coroutines.*
 
 class MyService : Service() {
 
     companion object {
         private const val PACKAGE_NAME = BuildConfig.APPLICATION_ID
-        const val ACTION_START = "$PACKAGE_NAME.start"
+        const val ACTION_START_PAUSE = "$PACKAGE_NAME.start_pause"
         const val ACTION_STOP = "$PACKAGE_NAME.stop"
         const val ACTION_KILL = "$PACKAGE_NAME.kill"
 
@@ -19,6 +20,16 @@ class MyService : Service() {
 
     private val notificationManager by lazy {
         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    }
+
+    private val remoteViews by lazy {
+        val layout = RemoteViews(packageName, R.layout.notification)
+
+        layout.setTextViewText(R.id.tv_timer, "Time: $seconds")
+
+        layout.setOnClickPendingIntent(R.id.btn_start_pause, intentWithAction(ACTION_START_PAUSE))
+        layout.setOnClickPendingIntent(R.id.btn_stop, intentWithAction(ACTION_KILL))
+        layout
     }
 
     private val notification by lazy {
@@ -33,15 +44,11 @@ class MyService : Service() {
 
         Notification.Builder(this, channelId)
             .setOngoing(true)
-            .setContentTitle("TitleAA")
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.mic)
             .setContentIntent(openActivityIntent)
-            .setTicker("TickerAA")
-            .setActions(
-                Notification.Action.Builder(null, "Start", intentWithAction(ACTION_START)).build(),
-                Notification.Action.Builder(null, "Stop", intentWithAction(ACTION_STOP)).build(),
-                Notification.Action.Builder(null, "Kill", intentWithAction(ACTION_KILL)).build(),
-            )
+            .setOnlyAlertOnce(true)
+            .setStyle(Notification.DecoratedCustomViewStyle())
+            .setCustomContentView(remoteViews)
     }
 
 
@@ -50,37 +57,57 @@ class MyService : Service() {
     private var seconds: Float = 0f
         set(value) {
             field = value
-            notificationManager.notify(
-                MAIN_NOTIFICATION_ID,
-                notification.setContentText("$value").build()
-            )
+            changeTimerTextAndUpdate()
         }
+
+    private fun changeTimerTextAndUpdate() {
+        remoteViews.setTextViewText(R.id.tv_timer, "Time: $seconds")
+        updateNotification()
+    }
+
+    private fun changeButtonStartPauseTextAndUpdate() {
+        remoteViews.setImageViewResource(
+            R.id.btn_start_pause,
+            if (running) R.drawable.ic_round_pause_24 else R.drawable.ic_round_play_arrow_24
+        )
+        updateNotification()
+    }
+
+    private fun updateNotification() {
+        notificationManager.notify(
+            MAIN_NOTIFICATION_ID,
+            notification.build()
+        )
+    }
 
     private fun startTimer() {
-        if (running)
-            return
-
-        running = true
-        MainScope().launch(timerJob) {
-            while (true) {
-                delay(500)
-                seconds += 0.5f
+        if (running) {
+            running = false
+            timerJob.cancelChildren()
+        } else {
+            running = true
+            MainScope().launch(timerJob) {
+                while (true) {
+                    delay(1000)
+                    seconds += 1
+                }
             }
         }
+
+        changeButtonStartPauseTextAndUpdate()
     }
 
     private fun stopTimer() {
-        running = false
-        timerJob.cancelChildren()
+
     }
 
     private fun killService() {
-        timerJob.cancel() // Show Anton what happens if this is absent.
+        timerJob.cancel()
         stopSelf()
     }
 
     private val actionHandlers = mapOf(
-        ACTION_START to ::startTimer,
+        ACTION_START_PAUSE to ::startTimer,
         ACTION_STOP to ::stopTimer,
         ACTION_KILL to ::killService,
     )
