@@ -1,10 +1,13 @@
 package com.kirillyemets.notificationmicrophone
 
+import android.Manifest
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.IBinder
 import android.widget.RemoteViews
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 
 class MyService : Service() {
@@ -132,6 +135,8 @@ class MyService : Service() {
         }
 
         startTimer()
+        changeButtonStartPauseIcon()
+
         startForeground(MAIN_NOTIFICATION_ID, notification.build())
         return super.onStartCommand(intent, flags, startId)
     }
